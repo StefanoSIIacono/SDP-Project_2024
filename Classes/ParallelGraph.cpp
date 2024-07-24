@@ -8,6 +8,8 @@
 
 using namespace std;
 
+//this funtion prints the graph matrix
+// i added it to just for the debuge purpose
 void printGraph(const vector<vector<int>>& graph) {
     int V = graph.size();
     cout << "Graph adjacency matrix:" << endl;
@@ -20,67 +22,78 @@ void printGraph(const vector<vector<int>>& graph) {
 }
 
 // Function to perform BFS in the residual graph
+//function is used to check wheather there is a path from source to the sink in the graph
+//s= source vertex
+//t = sinl vertex
+//parent refers to a vector that stores the path from s to t
+
 bool bfs(vector<vector<int>>& rGraph, int s, int t, vector<int>& parent) {
-    int V = rGraph.size();
-    vector<bool> visited(V, false);
-    queue<int> q;
+    int V = rGraph.size(); //used to indicate number of vertices in the graph
+    vector<bool> visited(V, false); // used to keep track of visted vertices. initally all vertices are marked as not visited
+    queue<int> q;// a queue used to manage the BFS traversal
     
-    q.push(s);
-    visited[s] = true;
-    parent[s] = -1;
+    q.push(s); //used to enqueue the source vertex s to start the BFS
+    visited[s] = true; //mark the vertex as visited
+    parent[s] = -1; // set the parent of the source vertex s to -1, indiating the start of the path
     
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
+    while (!q.empty()) { // loop continues until queue is empty
+        int u = q.front(); //get the front vertex from the queue
+        q.pop(); //dequeue from the front vertex
         
-        for (int v = 0; v < V; v++) {
-            if (!visited[v] && rGraph[u][v] > 0) {
-                if (v == t) {
+        for (int v = 0; v < V; v++) { //iterate through all vertices to check the neighbours of u
+            if (!visited[v] && rGraph[u][v] > 0) { // checks if vertex v is not visited and theree is a positive residual capacity from u to v
+                if (v == t) { 
                     parent[v] = u;
-                    return true;
+                    return true; // return true when path from s to t is found
                 }
                 q.push(v);
-                parent[v] = u;
-                visited[v] = true;
+                parent[v] = u; //  Set the parent of v to u, indicating the path from u to v
+                visited[v] = true; // mark vertex as visited
             }
         }
     }
-    return false;
+    return false; // retrun false when the queuw is empty and the sink vertex t is not reached also indicates that no path from s to t.
 }
 
 // Function to update the residual graph
+// used to determine the flow along specific path
+//path_flow is the flow value that can be pushed through the found path
 void updateResidualGraph(vector<vector<int>>& rGraph, vector<int>& parent, int s, int t, int path_flow) {
     int v = t;
     while (v != s) {
         int u = parent[v];
-        #pragma omp critical
+        #pragma omp critical // the enclosed block of code is executed by only one thread at a time, preventing the race condition when updating the shared rGraph strcuture
         {
-            rGraph[u][v] -= path_flow;
-            rGraph[v][u] += path_flow;
+            rGraph[u][v] -= path_flow; //reduce the capacity of forward edge by the path
+            rGraph[v][u] += path_flow; // for reverse edge. addition of backfloe capacity
         }
-        v = parent[v];
+        v = parent[v]; //move the parent of the current vertex v to continue traversing the path back to the source s
     }
 }
 
 // Edmonds-Karp algorithm for computing maximum flow
+//retrun an integer with the value of maximum flow
+//garph = matrix representation of the graph
+//s = source
+// t = sink
 int edmondsKarp(vector<vector<int>>& graph, int s, int t) {
-    int V = graph.size();
+    int V = graph.size(); //no of vertices in the graph
     
-    vector<vector<int>> rGraph = graph; // Create a copy of the graph
+    vector<vector<int>> rGraph = graph; // Create a copy of the graph because during the execution graph will be upadated so we use the copy instead of orignal graph
     // printGraph(rGraph);
-    vector<int> parent(V);
+    vector<int> parent(V); // will be useful to store path from source to sink found by BFS
     int max_flow = 0;
     
     while (bfs(rGraph, s, t, parent)) {
-        int path_flow = INT_MAX;
+        int path_flow = INT_MAX; // initializing the path flow to a large value
         for (int v = t; v != s; v = parent[v]) {
             int u = parent[v];
-            path_flow = min(path_flow, rGraph[u][v]);
+            path_flow = min(path_flow, rGraph[u][v]); // update the path flow to be the minimum residul capacity of the edges in the path.
         }
         
         // Update the residual graph
-        updateResidualGraph(rGraph, parent, s, t, path_flow);
-        max_flow += path_flow;
+        updateResidualGraph(rGraph, parent, s, t, path_flow); // update the residual capacities of the edge in the residual graph along the path
+        max_flow += path_flow; //add the path flow to the maximum flow
     }
     
     return max_flow;
