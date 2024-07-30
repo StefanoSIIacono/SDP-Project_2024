@@ -41,13 +41,24 @@ void generateGraphFile(const string& filename, int numVertices, int edgeProbabil
 
 int main() {
     string filename = "graph.txt";
-    int numVertices = 10000; // Number of nodes
-    int edgeProbability = 1; // Probability factor for edge creation (1% chance)
-    int maxCapacity = 1000;  // Maximum capacity for an edge
+    int numVertices ; // Number of nodes
+    //edge probabilty controls how densely conenected the graph will be. 
+    int edgeProbability; // Probability factor for edge creation (1% chance)
+    //maximum Capacity is st ot 1000, then the capacity of any edge in the graph will be a random number from 1 and 1000.
+    int maxCapacity;  // Maximum capacity for an edge
 
+
+    cout << "Enter the number of vertices: ";
+    cin >> numVertices;
+    cout << "Enter the edge probability (in %): ";
+    cin >> edgeProbability;
+    cout << "Enter the maximum capacity for an edge: ";
+    cin >> maxCapacity;
+    
     generateGraphFile(filename, numVertices, edgeProbability, maxCapacity);
     
     cout << "Graph generated and saved to " << filename << endl;
     
     return 0;
 }
+

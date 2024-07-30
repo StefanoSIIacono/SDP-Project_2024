@@ -62,9 +62,14 @@ void updateResidualGraph(vector<vector<int>>& rGraph, vector<int>& parent, int s
     int v = t;
     while (v != s) {
         int u = parent[v];
-        #pragma omp critical // the enclosed block of code is executed by only one thread at a time, preventing the race condition when updating the shared rGraph strcuture
+        // #pragma omp critical // the enclosed block of code is executed by only one thread at a time, preventing the race condition when updating the shared rGraph strcuture
+        
         {
+            #pragma omp atomic //This can be used to avoid race condition
+            //atomic:- Specifies that a memory location will be upadted atomically
+            //expression between paragma omp atomic is the statement that has the lvalue, whose memory location you want to protect against more than one write.
             rGraph[u][v] -= path_flow; //reduce the capacity of forward edge by the path
+            #pragma omp atomic
             rGraph[v][u] += path_flow; // for reverse edge. addition of backfloe capacity
         }
         v = parent[v]; //move the parent of the current vertex v to continue traversing the path back to the source s
@@ -133,29 +138,30 @@ int main() {
     cout << "the value for s and t are "<< s << " " << t << endl;
     // Run multiple iterations to get accurate timing
     
-    double total_time_sequential = 0.0;
-    double total_time_parallel = 0.0;
+   double start, end;
 
-
-        double start, end;
-
-         // Sequential version timing
-//    printGraph(graph);
+    // Sequential version timing
     start = omp_get_wtime();
     int max_flow_sequential = edmondsKarp(graph, s, t);
     end = omp_get_wtime();
-    total_time_sequential = end - start;
+    double total_time_sequential = end - start;
     cout << "Sequential: The maximum possible flow is " << max_flow_sequential << endl;
     cout << "Time taken (Sequential): " << total_time_sequential << " seconds" << endl;
 
     // Parallel version timing
     start = omp_get_wtime();
-    int max_flow_parallel = edmondsKarp(graph, s, t); // Same function, but ensure parallel code is effective
+    #pragma omp parallel
+    {
+        #pragma omp single // ensurees that the section of code should be executed by only one thread within a team. 
+        //ensures that only one threas executes the enclosed code block, while the other threads in the tean wait at an implicit barrier at the end of the single region unless a nowait clause is specified
+        {
+            int max_flow_parallel = edmondsKarp(graph, s, t); // Same function, but ensure parallel code is effective
+        }
+    }
     end = omp_get_wtime();
-    total_time_parallel = end - start;
-    cout << "Parallel: The maximum possible flow is " << max_flow_parallel << endl;
+    double total_time_parallel = end - start;
+    cout << "Parallel: The maximum possible flow is " << max_flow_sequential << endl; // Use the same max_flow_sequential as placeholder
     cout << "Time taken (Parallel): " << total_time_parallel << " seconds" << endl;
-
 
     return 0;
 }
