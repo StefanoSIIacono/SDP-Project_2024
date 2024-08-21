@@ -3,8 +3,10 @@
 #include <vector>
 #include <cstdlib> // For rand() and srand()
 #include <ctime>   // For time()
+#include <chrono>  // For timing
 
 using namespace std;
+using namespace std::chrono;
 
 void generateGraphFile(const string& filename, int numVertices, int edgeProbability, int maxCapacity) {
     ofstream outfile(filename);
@@ -55,9 +57,14 @@ int main() {
     cout << "Enter the maximum capacity for an edge: ";
     cin >> maxCapacity;
     
+    auto start = high_resolution_clock::now();
     generateGraphFile(filename, numVertices, edgeProbability, maxCapacity);
     
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+    
     cout << "Graph generated and saved to " << filename << endl;
+    cout << "Time taken to generate the graph: " << duration.count() << " milliseconds" << endl;
     
     return 0;
 }
