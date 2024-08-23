@@ -149,17 +149,17 @@ int main() {
     cout << "Time taken (Sequential): " << total_time_sequential << " seconds" << endl;
 
     // Parallel version timing
-     int desired_threads = 8; // Adjust this as needed
+     int desired_threads = 2; // Adjust this as needed
     omp_set_num_threads(desired_threads);
 
     start = omp_get_wtime();
     #pragma omp parallel 
     {
         #pragma omp single // ensurees that the section of code should be executed by only one thread within a team. 
-        //ensures that only one threas executes the enclosed code block, while the other threads in the tean wait at an implicit barrier at the end of the single region unless a nowait clause is specified
+        //ensures that only one thread executes the enclosed code block, while the other threads in the tean wait at an implicit barrier at the end of the single region unless a nowait clause is specified
         {
-            // int num_threads = omp_get_num_threads();
-            // cout << "Number of threads running in parallel: " << num_threads << endl;
+            int num_threads = omp_get_num_threads();
+            cout << "Number of threads running in parallel: " << num_threads << endl;
             int max_flow_parallel = edmondsKarp(graph, s, t); // Same function, but ensure parallel code is effective
         }
     }
