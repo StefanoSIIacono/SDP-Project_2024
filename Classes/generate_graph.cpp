@@ -42,7 +42,7 @@ void generateGraphFile(const string& filename, int numVertices, int edgeProbabil
 }
 
 int main() {
-    string filename = "graph.txt";
+    string filename = "G:/graph.txt";
     int numVertices ; // Number of nodes
     //edge probabilty controls how densely conenected the graph will be. 
     int edgeProbability; // Probability factor for edge creation (1% chance)

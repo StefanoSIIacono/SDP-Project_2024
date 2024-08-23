@@ -67,5 +67,7 @@
   - **Graph.cpp**: Used to get maximum flow using Ford-Fulkerson.
   - **Graph2.cpp**: Used to get the maximum flow using Edmonds-Karp.
   - **try.cpp**: Used to try some parallel execution commands to check how they work.
+  - **graph_generate.cpp**: Extra file to generate the random graph. It is an alternative algoritm i found to compute graph faster than ur old version.
+  
 
 

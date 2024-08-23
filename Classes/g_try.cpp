@@ -15,18 +15,17 @@ void generateGraphFile(const string& filename, int numVertices, int edgeProbabil
         return;
     }
 
-    // Write the number of vertices to the file
+    // Write the number of vertices
     outfile << numVertices << endl;
 
     srand(time(nullptr)); // Seed for randomness
 
-    // Generate the adjacency list and write directly to the file
+    // Generate and write the edges
     for (int i = 0; i < numVertices; ++i) {
-        for (int j = i + 1; j < numVertices; ++j) {
-            if ((rand() % 100) < edgeProbability) {
-                int capacity = rand() % maxCapacity + 1;
+        for (int j = 0; j < numVertices; ++j) {
+            if (i != j && (rand() % 100) < edgeProbability) { // Randomly decide if an edge exists
+                int capacity = rand() % maxCapacity + 1; // Random capacity between 1 and maxCapacity
                 outfile << i << " " << j << " " << capacity << endl;
-                outfile << j << " " << i << " " << capacity << endl; // For undirected graph
             }
         }
     }
@@ -41,9 +40,9 @@ void generateGraphFile(const string& filename, int numVertices, int edgeProbabil
 
 int main() {
     string filename = "G:/graph.txt";
-    int numVertices;
-    int edgeProbability;
-    int maxCapacity;
+    int numVertices; // Number of nodes
+    int edgeProbability; // Probability factor for edge creation (in percentage)
+    int maxCapacity;  // Maximum capacity for an edge
 
     cout << "Enter the number of vertices: ";
     cin >> numVertices;
@@ -51,14 +50,15 @@ int main() {
     cin >> edgeProbability;
     cout << "Enter the maximum capacity for an edge: ";
     cin >> maxCapacity;
-    
+
     auto start = high_resolution_clock::now();
     generateGraphFile(filename, numVertices, edgeProbability, maxCapacity);
+
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(stop - start);
-    
+
     cout << "Graph generated and saved to " << filename << endl;
     cout << "Time taken to generate the graph: " << duration.count() << " milliseconds" << endl;
-    
+
     return 0;
 }
