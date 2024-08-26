@@ -111,7 +111,7 @@ int main() {
     cout << "Time taken (Sequential): " << total_time_sequential << " seconds" << endl;
 
     // Parallel version timing
-    int desired_threads = 1; // Adjust this as needed
+    int desired_threads = 2; // Adjust this as needed
     omp_set_num_threads(desired_threads);
 
     start = omp_get_wtime();
