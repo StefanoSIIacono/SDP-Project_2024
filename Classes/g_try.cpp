@@ -39,7 +39,7 @@ void generateGraphFile(const string& filename, int numVertices, int edgeProbabil
 }
 
 int main() {
-    string filename = "G:/graph.txt";
+    string filename = "graph.txt";
     int numVertices; // Number of nodes
     int edgeProbability; // Probability factor for edge creation (in percentage)
     int maxCapacity;  // Maximum capacity for an edge
