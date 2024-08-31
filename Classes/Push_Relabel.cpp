@@ -64,50 +64,74 @@ public:
         return maxFlow;
     }
 
-    int getMaxFlowParallel(int source, int sink) {
-        height[source] = n;
-        excess[source] = INT_MAX;
+int getMaxFlowParallel(int source, int sink) {
+    height[source] = n;
+    excess[source] = INT_MAX;
 
-        for (int i = 0; i < n; i++) {
-            if (capacity[source][i] > 0) {
-                push(source, i);
-            }
+    for (int i = 0; i < n; i++) {
+        if (capacity[source][i] > 0) {
+            push(source, i);
         }
+    }
 
-        bool active = true;
-        while (active) {
-            active = false;
-            #pragma omp parallel 
-            { 
-                //int num_threads = omp_get_num_threads();
-                //cout << "Number of threads in parallel region: " << num_threads << endl;
-                #pragma omp for
-                for (int u = 0; u < n; u++) {
-                    if (u != source && u != sink && excess[u] > 0) {
-                        bool pushed = false;
-                        for (int v = 0; v < n && excess[u] > 0; v++) {
-                            if (capacity[u][v] - flow[u][v] > 0 && height[u] == height[v] + 1) {
-                                push(u, v);
-                                pushed = true;
+    bool active = true;
+    while (active) {
+        active = false;
+        std::vector<bool> local_active(n, false);
+
+        #pragma omp parallel
+        {
+            bool local_found_active_node = false;
+
+            #pragma omp for nowait
+            for (int u = 0; u < n; u++) {
+                if (u != source && u != sink && excess[u] > 0) {
+                    local_found_active_node = true;
+                    bool pushed = false;
+                    for (int v = 0; v < n && excess[u] > 0; v++) {
+                        if (capacity[u][v] - flow[u][v] > 0 && height[u] == height[v] + 1) {
+                            #pragma omp critical
+                            {
+                                push(u, v); // Ensure push is thread-safe
                             }
+                            pushed = true;
                         }
-                        if (!pushed) {
-                            relabel(u);
+                    }
+                    if (!pushed) {
+                        #pragma omp critical
+                        {
+                            relabel(u); // Ensure relabel is thread-safe
                         }
-                        if (excess[u] > 0) active = true;
+                        if (excess[u] > 0) {
+                            local_active[u] = true;
+                        }
                     }
                 }
             }
+
+            // Update global active status
+            #pragma omp atomic write
+            active = active || local_found_active_node;
         }
 
-        int maxFlow = 0;
-        for (int i = 0; i < n; i++) {
-            maxFlow += flow[source][i];
+        // Update global active status based on local_active
+        #pragma omp parallel for
+        for (int u = 0; u < n; u++) {
+            if (local_active[u]) {
+                #pragma omp atomic write
+                active = true;
+            }
         }
-
-        return maxFlow;
     }
 
+    // Compute maxFlow
+    int maxFlow = 0;
+    for (int i = 0; i < n; i++) {
+        maxFlow += flow[source][i];
+    }
+
+    return maxFlow;
+}
 private:
     int n;
     vector<vector<int>> capacity;
@@ -187,6 +211,7 @@ int main(int argc, char *argv[]) {
     cout << "Sequential Max Flow: " << maxFlow << endl;
     cout << "Sequential Time Taken: " << duration << " seconds" << endl;
 
+
     omp_set_num_threads(numThreads);
     
     double start1 = omp_get_wtime();
@@ -197,5 +222,6 @@ int main(int argc, char *argv[]) {
     cout << "Parallel Max Flow: " << maxFlow1 << endl;
     cout << "Parallel Time Taken: " << duration1 << " seconds" << endl;
     cout << "Number of threads: " << numThreads << endl;
+    
     return 0;
 }
