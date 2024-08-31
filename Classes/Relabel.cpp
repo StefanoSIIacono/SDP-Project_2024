@@ -71,28 +71,28 @@ public:
         bool active = true;
         while (active) {
             active = false;
-        #pragma omp parallel
+            #pragma omp parallel num_threads(2)
             {
                 int num_threads = omp_get_num_threads();
                 cout << "Number of threads in parallel region: " << num_threads << endl;
 
-            #pragma omp  for
-            for (int u = 0; u < n; u++) {
-                if (u != source && u != sink && excess[u] > 0) {
-                    bool pushed = false;
-                    for (int v = 0; v < n && excess[u] > 0; v++) {
-                        if (capacity[u][v] - flow[u][v] > 0 && height[u] == height[v] + 1) {
-                            push(u, v);
-                            pushed = true;
+                #pragma omp  for
+                for (int u = 0; u < n; u++) {
+                    if (u != source && u != sink && excess[u] > 0) {
+                        bool pushed = false;
+                        for (int v = 0; v < n && excess[u] > 0; v++) {
+                            if (capacity[u][v] - flow[u][v] > 0 && height[u] == height[v] + 1) {
+                                push(u, v);
+                                pushed = true;
+                            }
                         }
+                        if (!pushed) {
+                            relabel(u);
+                        }
+                        if (excess[u] > 0) active = true;
                     }
-                    if (!pushed) {
-                        relabel(u);
-                    }
-                    if (excess[u] > 0) active = true;
                 }
             }
-        }
         }
 
         int maxFlow = 0;
@@ -162,20 +162,18 @@ int main() {
     cout << "Source and sink is " <<source << " "<< sink << endl;
     inputFile.close();
 
-    // auto start = omp_get_wtime();
-    // int maxFlow = graph.getMaxFlow(source, sink);
-    // auto end = omp_get_wtime();
-    // // chrono::duration<double> duration = end - start;
-    // double duration = end - start;
-    // cout << "Sequential Max Flow: " << maxFlow << endl;
-    // cout << "Sequential Time Taken: " << duration << " seconds" << endl;
+    double start = omp_get_wtime();
+    int maxFlow = graph.getMaxFlow(source, sink);
+    double end = omp_get_wtime();
+    double duration = end - start;
+    cout << "Sequential Max Flow: " << maxFlow << endl;
+    cout << "Sequential Time Taken: " << duration << " seconds" << endl;
 
     omp_set_num_threads(1);
-    auto start = omp_get_wtime();
+    double start1 = omp_get_wtime();
     int maxFlow1 = graph.getMaxFlowParallel(source, sink);
-    auto end = omp_get_wtime();
+    double end1 = omp_get_wtime();
     double duration1 = end - start;
-    // chrono::duration<double> duration1 = end - start;
 
     cout << "Parallel Max Flow: " << maxFlow1 << endl;
     cout << "Parallel Time Taken: " << duration1 << " seconds" << endl;
