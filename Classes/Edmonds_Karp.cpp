@@ -69,25 +69,39 @@ int edmondsKarp(vector<vector<int>>& graph, int s, int t) {
     return max_flow;
 }
 
-int main() {
-    string filename;
-    cout << "Enter the filename: ";
-    cin >> filename;
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        cerr << "Usage: " << argv[0] << " <input_file> [number_of_threads]" << endl;
+        return 1;
+    }
+
+    string filename = argv[1];
 
     ifstream infile(filename);
     if (!infile) {
-        cerr << "Error opening file." << endl;
+        cerr << "Unable to open file " << filename << endl;
         return 1;
+    }
+
+    int desired_threads = 8; // Default value
+    if (argc == 3) {
+        desired_threads = atoi(argv[2]); 
+        if (desired_threads <= 0) {
+            cerr << "Invalid number of threads. Using default value of 8." << endl;
+            desired_threads = 8;
+        }
     }
 
     int V;
     infile >> V;
 
     vector<vector<int>> graph(V, vector<int>(V, 0));
+    vector<vector<int>> graph1(V, vector<int>(V, 0));
 
     int u, v, capacity;
     while (infile >> u >> v >> capacity) {
         graph[u][v] = capacity;
+        graph1[u][v] = capacity;
     }
 
     infile.clear(); // Clear the EOF flag
@@ -110,8 +124,6 @@ int main() {
     cout << "Sequential: The maximum possible flow is " << max_flow_sequential << endl;
     cout << "Time taken (Sequential): " << total_time_sequential << " seconds" << endl;
 
-    // Parallel version timing
-    int desired_threads = 2; // Adjust this as needed
     omp_set_num_threads(desired_threads);
 
     start = omp_get_wtime();
@@ -121,7 +133,7 @@ int main() {
         {
             int num_threads = omp_get_num_threads();
             cout << "Number of threads running in parallel: " << num_threads << endl;
-            int max_flow_parallel = edmondsKarp(graph, s, t); // Same function, but ensure parallel code is effective
+            int max_flow_parallel = edmondsKarp(graph1, s, t); // Same function, but ensure parallel code is effective
         }
     }
     end = omp_get_wtime();

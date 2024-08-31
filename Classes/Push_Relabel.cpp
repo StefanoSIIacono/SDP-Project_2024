@@ -10,7 +10,13 @@ using namespace std;
 
 class PushRelabel {
 public:
-    PushRelabel(int n) : n(n), capacity(n, vector<int>(n, 0)), flow(n, vector<int>(n, 0)), height(n, 0), excess(n, 0) {}
+    PushRelabel(int n) : 
+    n(n), 
+    capacity(n, vector<int>(n, 0)), 
+    flow(n, vector<int>(n, 0)), 
+    height(n, 0), 
+    excess(n, 0) 
+    {}
 
     void addEdge(int u, int v, int cap) {
         capacity[u][v] = cap;
@@ -71,12 +77,11 @@ public:
         bool active = true;
         while (active) {
             active = false;
-            #pragma omp parallel num_threads(2)
-            {
-                int num_threads = omp_get_num_threads();
-                cout << "Number of threads in parallel region: " << num_threads << endl;
-
-                #pragma omp  for
+            #pragma omp parallel 
+            { 
+                //int num_threads = omp_get_num_threads();
+                //cout << "Number of threads in parallel region: " << num_threads << endl;
+                #pragma omp for
                 for (int u = 0; u < n; u++) {
                     if (u != source && u != sink && excess[u] > 0) {
                         bool pushed = false;
@@ -131,25 +136,38 @@ private:
     }
 };
 
-int main() {
-    string filename;
-    cout << "Enter the filename: ";
-    cin >> filename;
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        cerr << "Usage: " << argv[0] << " <input_file> [number_of_threads]" << endl;
+        return 1;
+    }
+
+    string filename = argv[1];
+
     ifstream inputFile(filename);
     if (!inputFile) {
-        cerr << "Unable to open file graph.txt" << endl;
+        cerr << "Unable to open file " << filename << endl;
         return 1;
+    }
+
+    int numThreads = 8; // Default value
+    if (argc == 3) {
+        numThreads = atoi(argv[2]); 
+        if (numThreads <= 0) {
+            cerr << "Invalid number of threads. Using default value of 8." << endl;
+            numThreads = 8;
+        }
     }
 
     int n;
     inputFile >> n;
     
     PushRelabel graph(n);
-
+    PushRelabel graph1(n);
     int u, v, cap;
     while (inputFile >> u >> v >> cap) {
-        //  cout << u << " "<< v<<" "<<cap<<endl;
         graph.addEdge(u, v, cap);
+        graph1.addEdge(u, v, cap);
     }
 
     // Read source and sink
@@ -159,7 +177,7 @@ int main() {
     inputFile >> u >> v;
     source = u;
     sink = v;
-    cout << "Source and sink is " <<source << " "<< sink << endl;
+    cout << "Source and sink are " <<source << " "<< sink << endl;
     inputFile.close();
 
     double start = omp_get_wtime();
@@ -169,14 +187,15 @@ int main() {
     cout << "Sequential Max Flow: " << maxFlow << endl;
     cout << "Sequential Time Taken: " << duration << " seconds" << endl;
 
-    omp_set_num_threads(1);
+    omp_set_num_threads(numThreads);
+    
     double start1 = omp_get_wtime();
-    int maxFlow1 = graph.getMaxFlowParallel(source, sink);
+    int maxFlow1 = graph1.getMaxFlowParallel(source, sink);
     double end1 = omp_get_wtime();
-    double duration1 = end - start;
+    double duration1 = end1 - start1;
 
     cout << "Parallel Max Flow: " << maxFlow1 << endl;
     cout << "Parallel Time Taken: " << duration1 << " seconds" << endl;
-
+    cout << "Number of threads: " << numThreads << endl;
     return 0;
 }

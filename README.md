@@ -4,70 +4,172 @@
 
 ### Project Description
 
-- This project implements the Edmonds-Karp algorithm to solve the Maximum Flow Problem in a flow network.
-- The implementation includes both sequential and parallel versions using OpenMP for parallelization.
-- The project is implemented using C++ programming.
+This project implements three key algorithms to solve the Maximum Flow Problem in a flow network:
+- Edmonds-Karp Algorithm
+- Dinitz's Algorithm
+- Push-Relabel Algorithm
+Each algorithm is implemented in both sequential and parallel versions, with the parallel versions optimized using OpenMP.
+Additionally, a graph generation code is included, allowing you to create test graphs easily if you just want to test the algorithms without providing your own input.
+## Implementation Details:
+- **Programming Language**: 
+The project is implemented in C++.
+- **Parallelization**: 
+Parallel versions leverage OpenMP for enhanced performance on multi-core systems.
+- **Further Details**: 
+  Detailed descriptions of each algorithm, including their implementation specifics and theoretical background, can be found in the accompanying documentation file `DOCUMENTATION.md`. This file provides in-depth explanations of the algorithms, their parallelization strategies, and any additional considerations related to their implementation.
 
 ### Features
 
-- Reads graph input from a file (`graph.txt`).
-- Implements the Edmonds-Karp algorithm for maximum flow calculation.
-- Provides both sequential and parallel implementations.
-- Measures and compares the performance of both implementations.
-- Includes a graph generation utility.
+- **Multiple Maximum Flow Algorithms**:
+  - Implements three different algorithms to solve the Maximum Flow Problem: Edmonds-Karp, Dinitz's, and Push-Relabel.
 
-### Installation and Usage
+- **Sequential and Parallel Implementations**:
+  - Provides both sequential and parallel implementations for each algorithm.
 
-1. Ensure you have a C++ compiler installed (e.g., `g++`) with OpenMP support.
+- **Performance Measurement**:
+  - Measures execution time for both the sequential and parallel implementations of each algorithm.
 
-2. Compile the code using the following commands:
+- **Graph Generation Utility**:
+  - Includes a tool for generating test graphs to facilitate algorithm testing.
 
-    To compile the main code:
-    ```sh
-    g++ -fopenmp -o ParallelGraph ParallelGraph.cpp
-    ```
+- **Supported Graph File Format**:
+  - The input graph should be provided in a `.txt` file with the following structure:
+    - **First Line**: Number of vertices (n) and number of edges (m).
+    - **Next m Lines**: Each line represents an edge with three values: the starting vertex, the ending vertex, and the capacity of the edge.
+    - **Last Line**: Contains two values representing the source and sink vertices.
+  - An example input file is provided in the project folder under `graph.txt`.
 
-    To compile the file to generate the random graph:
-    ```sh
-    g++ -o generate_graph generate_graph.cpp
-    ```
 
-3. Run the programs:
+### Compilation and Execution
 
-    To run the main program:
-    ```sh
-    ./ParallelGraph
-    ```
+1. **Ensure you have a C++ compiler installed**:
+   - Make sure you have a C++ compiler like `g++` installed with OpenMP support.
 
-    To run the graph generation utility:
-    ```sh
-    ./generate_graph
-    ```
+2. **Compile the code using the following commands**:
 
-4. Enter the filename as `graph.txt` when prompted.
+   - To compile the Edmonds-Karp algorithm:
+     ```sh
+     g++ -fopenmp -o Edmonds_Karp.exe Edmonds_Karp.cpp
+     ```
+
+   - To compile Dinitz's algorithm:
+     ```sh
+     g++ -fopenmp -o Dinitz.exe Dinitz.cpp
+     ```
+
+   - To compile the Push-Relabel algorithm:
+     ```sh
+     g++ -fopenmp -o Push_Relabel.exe Push_Relabel.cpp
+     ```
+
+   - To compile the graph generation utility:
+     ```sh
+     g++ -o generate_graph.exe generate_graph.cpp
+     ```
+
+3. **Run the programs**:
+
+   - To run the Edmonds-Karp algorithm:
+     ```sh
+     ./Edmonds_Karp.exe <graph_file.txt> [number_of_threads]
+     ```
+
+   - To run Dinitz's algorithm:
+     ```sh
+     ./Dinitz.exe <graph_file.txt> [number_of_threads]
+     ```
+
+   - To run the Push-Relabel algorithm:
+     ```sh
+     ./Push_Relabel.exe <graph_file.txt> [number_of_threads]
+     ```
+
+   - To run the graph generation utility:
+     ```sh
+     ./generate_graph.exe [output_file.txt]
+     ```
+     - **Note**: Replace `[output_file.txt]` with the desired name for the generated graph file. If omitted, the default filename `graph.txt` will be used.
+
+     - **Interactive Prompts**: After execution, you will be prompted to enter the following details via standard input:
+       - **Number of vertices**: The total number of vertices in the graph.
+       - **Edge probability**: The probability (in percentage) that an edge exists between any pair of vertices.
+       - **Maximum capacity**: The maximum capacity for any edge in the graph.
+
+   - **Note**: For all algorithms, replace `<graph_file.txt>` with the name of your graph file. The `[number_of_threads]` argument is optional and specifies the number of threads to be used in parallel execution. If omitted, the program defaults to 8 threads.
+
 
 ### Code Structure
 
-- **ParallelGraph.cpp**: Main code file implementing the Edmonds-Karp algorithm.
-- **generate_graph.cpp**: File to generate a random graph and save it to a file (`graph.txt`).
+- **Edmonds_Karp.cpp**: Main code file implementing the Edmonds-Karp algorithm.
+- **Dinitz.cpp**: Main code file implementing Dinitz's algorithm.
+- **Push_Relabel.cpp**: Main code file implementing the Push-Relabel algorithm.
+- **generate_graph.cpp**: Utility for generating a random graph and saving it to a file (default: `graph.txt`).
+
 
 ### Algorithms Used
 
-- **Edmonds-Karp Algorithm**: An implementation of the Ford-Fulkerson method using BFS to find augmenting paths.
-- **Parallelization with OpenMP**: Utilizes OpenMP to parallelize parts of the algorithm for improved performance on multi-core systems.
+- **Edmonds-Karp Algorithm**: 
+  - Implements the Ford-Fulkerson method for computing the maximum flow in a flow network.
+  - Utilizes Breadth-First Search (BFS) to find augmenting paths.
+  - The algorithm repeatedly finds augmenting paths from the source to the sink and updates the flow until no more augmenting paths can be found.
 
-### Performance
+- **Dinitz's Algorithm**:
+  - An efficient algorithm for finding the maximum flow in a flow network.
+  - Uses a level graph and blocking flows to improve performance over the Ford-Fulkerson method.
+  - Constructs level graphs using Breadth-First Search and finds blocking flows using Depth-First Search.
 
-- The program measures and prints the execution time for both the sequential and parallel versions of the algorithm.
-- Performance can be tested using different graph sizes and configurations.
+- **Push-Relabel Algorithm**:
+  - An advanced algorithm for computing maximum flow in a flow network.
+  - Operates by maintaining a preflow and adjusting the flow using push and relabel operations.
+  - Efficient in practice, especially for networks with large numbers of vertices and edges.
 
-### Extra Files
+- **Parallelization with OpenMP**:
+  - Uses OpenMP to parallelize certain parts of the algorithms to leverage multi-core processors.
+  - Improves performance by dividing tasks among multiple threads and reducing execution time for large networks.
+  - The implementation includes parallelized sections to handle the BFS in Edmonds-Karp, the level graph construction in Dinitz's, and the push/relabel operations in the Push-Relabel algorithm.
 
-- These files are for testing and understanding the algorithm and can be deleted in the final version:
-  - **Graph.cpp**: Used to get maximum flow using Ford-Fulkerson.
-  - **Graph2.cpp**: Used to get the maximum flow using Edmonds-Karp.
-  - **try.cpp**: Used to try some parallel execution commands to check how they work.
-  - **graph_generate.cpp**: Extra file to generate the random graph. It is an alternative algoritm i found to compute graph faster than ur old version.
-  
+## Parallel Execution
 
+### Efficiency on Multicore CPUs
+
+The parallel implementations of the algorithms are designed to make use of multiple CPU cores to enhance performance. Here’s a quick guide: 
+
+- **Multicore CPUs**: The parallel algorithms perform best on systems with multiple cores, as they can divide the workload among several threads, leading to reduced execution times.
+
+- **Single-Core CPUs**: On single-core systems, parallelization may not offer significant benefits. The overhead from managing multiple threads can sometimes outweigh the performance gains.
+
+However, the effectiveness of parallelization varies by algorithm.
+
+- **Thread Management**: The number of threads used can be specified when running the algorithms. The default is 8 threads, but you can adjust this based on your system’s capabilities.
+
+### Practical Considerations
+
+- **System Resources**: Ensure your system has enough CPU and memory resources to handle parallel execution. Excessive threading on limited resources can lead to reduced performance.
+
+- **Testing**: Experiment with different thread counts to find the best configuration for your hardware.
+
+## Memory Management
+
+Memory usage varies by algorithm:
+
+- **Edmonds-Karp Algorithm**: Uses a matrix for residual capacities and additional arrays. Memory usage is primarily dependent on the number of vertices.
+
+- **Dinitz's Algorithm**: Similar to Edmonds-Karp but includes extra structures like a level graph and start array.
+
+- **Push-Relabel Algorithm**: Requires additional matrices and arrays, leading to higher memory usage compared to the other algorithms.
+
+### RAM Requirements
+
+- **Large Graphs**: 
+  When working with large graphs, the memory requirements can increase significantly. For very large graphs, the memory usage can become a limiting factor and may require careful management of system resources to prevent out-of-memory errors.
+
+  - **Example**: For a graph with \( 10^4 \) vertices, the adjacency matrix alone will require on the order of \( 100 \text{ MB} \) of RAM. With additional arrays and data structures, the total memory usage can be considerably higher.
+
+- **System Considerations**: 
+  Ensure that your system has adequate RAM to handle the size of the graphs you plan to work with. For extremely large graphs, you may need to use machines with large amounts of memory or consider optimizing your algorithms for better memory efficiency.
+
+
+## Execution Time
+
+For large graphs, the execution time of these algorithms can increase significantly. As the size of the graph grows, the complexity and number of operations involved in finding the maximum flow also grow. This can lead to substantial increases in computation time.
 

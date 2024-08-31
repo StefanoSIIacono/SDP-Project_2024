@@ -94,27 +94,42 @@ double dinic(vector<vector<double>>& graph, int s, int t) {
     return max_flow;
 }
 
-int main() {
-    string filename;
-    cout << "Enter the filename: ";
-    cin >> filename;
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        cerr << "Usage: " << argv[0] << " <input_file> [number_of_threads]" << endl;
+        return 1;
+    }
+
+    string filename = argv[1];
 
     ifstream infile(filename);
     if (!infile) {
-        cerr << "Error opening file." << endl;
+        cerr << "Unable to open file " << filename << endl;
         return 1;
+    }
+
+    int desired_threads = 8; // Default value
+    if (argc == 3) {
+        desired_threads = atoi(argv[2]); 
+        if (desired_threads <= 0) {
+            cerr << "Invalid number of threads. Using default value of 8." << endl;
+            desired_threads = 8;
+        }
     }
 
     int V;
     infile >> V;
     // cout << "debus the value of V is " << V << endl;
     vector<vector<double>> graph(V, vector<double>(V, 0));
+    vector<vector<double>> graph1(V, vector<double>(V, 0));
+
 
     int u, v;
     double capacity;
     while (infile >> u >> v >> capacity) {
         // cout << "u is "<< u << "and v is "<< v << endl;
         graph[u][v] = capacity;
+        graph1[u][v] = capacity;
     }
 
     infile.clear(); // Clear the EOF flag
@@ -141,7 +156,6 @@ int main() {
 
     
     // Parallel version timing
-    int desired_threads = 8; // Adjust this as needed
     omp_set_num_threads(desired_threads);
 
     start = omp_get_wtime();
@@ -151,7 +165,7 @@ int main() {
         {
             int num_threads = omp_get_num_threads();
             cout << "Number of threads running in parallel: " << num_threads << endl;
-            double max_flow_parallel = dinic(graph, s, t); // Same function, but ensure parallel code is effective
+            double max_flow_parallel = dinic(graph1, s, t); // Same function, but ensure parallel code is effective
             cout << "Parallel: The maximum possible flow is " << max_flow_parallel << endl;
         }
     }

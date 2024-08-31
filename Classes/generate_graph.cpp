@@ -38,8 +38,13 @@ void generateGraphFile(const string& filename, int numVertices, int edgeProbabil
     outfile.close();
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    // Default filename
     string filename = "graph.txt";
+
+    if (argc >= 2) {
+        filename = argv[1];
+    }
     int numVertices; // Number of nodes
     int edgeProbability; // Probability factor for edge creation (in percentage)
     int maxCapacity;  // Maximum capacity for an edge
