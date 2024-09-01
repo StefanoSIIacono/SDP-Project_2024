@@ -174,10 +174,121 @@ No significant difference in memory usage was observed between the sequential an
 The ability to use Google Colab's additional resources was crucial for handling large graphs that could not be processed on the local system. The enhanced memory and processing power on Colab facilitated testing and comparison of the algorithm's performance on more demanding scenarios.
 
 #### 3.4 Analysis
-TODO
+To analyze and compare the performance of three maximum flow algorithms—Edmond-Karp, Dinitz, and Push-Relabel—we evaluated their efficiency using graphs with varying dimensions and edge probabilities. This analysis aimed to assess each algorithm’s performance and scalability under different conditions.
+- **Edmond-Karp**
+We tested the Edmond-Karp Algorithm with graphs of various sizes, but its performance was notably poor. With a graph of 10,000 nodes and an edge probability of 5%, Edmond-Karp took around 875 seconds to complete, which was significantly longer than the times achieved by Dinitz and Push-Relabel, both of which completed the task in under 10 seconds. Due to the algorithm's excessive computation time and its inability to benefit from parallelization effectively, we decided to halt further testing with larger graphs. Edmond-Karp did not show promising results even with parallel execution, reinforcing its inefficiency for large-scale problems.
+![Edmond Karp is much slower for large graphs [10k nodes]](pictures/emond_karp_long.png)
+- **Dinitz and Push-Relabel**
+The Dinitz algorithm consistently demonstrated faster execution times compared to the Push-Relabel algorithm. 
+
+![Comparison of parallel execution times in Dinitz and Push-Relabel](pictures/Parallel_comparison.png)
+
+However, its parallelization performance was suboptimal. Despite running with up to 8 threads, the improvements in parallel execution time were marginal, indicating that Dinitz does not scale well with additional threads for large, dense graphs.
+
+![Sequential Time vs. Parallel Time in Dinitz](pictures/DINITZ_Execution_Times.png)
+
+On the other hand, the Push-Relabel algorithm, while slower in sequential execution, exhibited notable advantages in parallel execution. Even though the parallel execution times increased with the number of threads—likely due to overhead and diminishing returns—the Push-Relabel algorithm still provided better performance compared to its sequential counterpart. For dense graphs with high edge probabilities, Push-Relabel showed effective parallelization benefits, making it a strong candidate for scenarios where parallel processing is crucial despite its inherently slower performance. 
+
+![Sequential Time vs. Parallel Time in Push-Relabel](pictures/Push_Relabel_Execution_Times.png)
+
+We also encountered significant challenges when testing larger graph sizes. Specifically, we halted testing at a graph size of 25,000 nodes due to increasing execution times and frequent system crashes caused by insufficient RAM. 
+
+- **Detail Results from testing**
+#### Graph 1: 100 Vertices, 30% Edge Probability, Maximum Edge Capacity 50
+| Algorithm      | Maximum Flow | Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|----------------|--------------|---------------------------|----------------|-------------------------|
+| Dinitz         | 590          | 0                         | 2              | 0.000999928             |
+| Edmond-Karp    | 590          | 0.0180001                 | 2              | 0.00999999              |
+| Push-Relabel   | 590          | 0.05                      | 2              | 0.111                   |
+
+#### Graph 2: 100 Vertices, 100% Edge Probability, Maximum Edge Capacity 50
+| Algorithm      | Maximum Flow | Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|----------------|--------------|---------------------------|----------------|-------------------------|
+| Dinitz         | 2551         | 0.00100017                | 2              | 0.00399995              |
+| Edmond-Karp    | 2551         | 0.0289998                 | 2              | 0.029                   |
+| Push-Relabel   | 2551         | 0                         | 2              | 0.00399995              |
+
+#### Graph 3: 1000 Vertices, 1% Edge Probability, Maximum Edge Capacity 50
+| Algorithm      | Maximum Flow | Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|----------------|--------------|---------------------------|----------------|-------------------------|
+| Dinitz         | 225          | 0.04                      | 2              | 0.042                   |
+| Edmond-Karp    | 225          | 0.511                     | 2              | 0.52                    |
+| Push-Relabel   | 225          | 0.114                     | 2              | 0.097                   |
+
+#### Graph 4: 5000 Vertices, 10% Edge Probability, Maximum Edge Capacity 20
+| Algorithm      | Maximum Flow | Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|----------------|--------------|---------------------------|----------------|-------------------------|
+| Dinitz         | 5028         | 0.67                      | 2              | 0.692                   |
+| Edmond-Karp    | 5028         | 54.01                     | 2              | 53.877                  |
+| Push-Relabel   | 5028         | 1.92                      | 2              | 1.611                   |
+
+#### Graph 5: 5000 Vertices, 50% Edge Probability, Maximum Edge Capacity 20
+| Algorithm      | Maximum Flow | Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|----------------|--------------|---------------------------|----------------|-------------------------|
+| Dinitz         | 26088        | 1.34751                   | 4              | 1.2639                  |
+| Edmond-Karp    | 26088        | 1073.12                   | 2              | 1072.03                 |
+| Push-Relabel   | 26088        | -                         | 4              | -                       |
+
+#### Graph 6: 10000 Vertices, 1% Edge Probability, Maximum Edge Capacity 50
+| Algorithm      | Maximum Flow | Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|----------------|--------------|---------------------------|----------------|-------------------------|
+| Dinitz         | 2611         | 5.740                     | 2              | 3.708                   |
+| Edmond-Karp    | 2611         | 570.535                   | 2              | 574.839                 |
+| Push-Relabel   | 2611         | 8.989                     | 2              | 0.025                   |
+
+#### Graph 7: 10000 Vertices, 5% Edge Probability, Maximum Edge Capacity 20
+| Algorithm      | Maximum Flow | Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|----------------|--------------|---------------------------|----------------|-------------------------|
+| Dinitz         | 5665         | 5.42971                   | 4              | 3.80329                 |
+| Edmond-Karp    | 5665         | 876.196                   | 4              | 877.335                 |
+| Push-Relabel   | 5665         | 10.0779                   | 4              | 8.45053                 |
+
+#### Graph 8: 10000 Vertices, 85% Edge Probability, Maximum Edge Capacity 20
+| Algorithm      | Maximum Flow | Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|----------------|--------------|---------------------------|----------------|-------------------------|
+| Dinitz         | 25215        | 3.728                     | 3              | 3.546                   |
+| Edmond-Karp    | -            | -                         | -              | -                       |
+| Push-Relabel   | 25215        | 26.741                    | 4              | 12.867                  |
+
+#### Push-Relabel Results with Varying Number of Threads
+*Note: These results refer to the same graph configuration as the one with 10000 vertices, 85% edge probability, and maximum edge capacity of 20.*
+
+| Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|---------------------------|----------------|-------------------------|
+| 26.7414                   | 8              | 12.8678                 |
+| 27.5173                   | 16             | 13.6097                 |
+| 26.7817                   | 4              | 12.2204                 |
+| 32.1883                   | 2              | 14.3001                 |
+
+#### Dinic's Results with Varying Number of Threads
+*Note: These results refer to the same graph configuration as the one with 10000 vertices, 85% edge probability, and maximum edge capacity of 20.*
+
+| Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|---------------------------|----------------|-------------------------|
+| 6.56511                   | 1              | 9.42066                 |
+| 6.58412                   | 8              | 9.02034                 |
+| 10.5067                   | 4              | 6.51952                 |
+| 7.00363                   | 2              | 7.95244                 |
+
+#### Graph 9: 20000 Vertices, 1% Edge Probability, Maximum Edge Capacity 20
+| Algorithm       | Maximum Flow | Sequential Time Taken | No. of Threads for Parallel | Parallel Time Taken |
+|-----------------|--------------|-----------------------|----------------------------|---------------------|
+| Dinitz          | 1992         | 21.1831               | 8                          | 21.2485             |
+| Edmond-Karp     | -            | -                     | -                          | -                   |
+| Push-Relabel    | 1992         | 32.9769               | 2                          | 32.8603             |
+
+#### Graph 10: 25000 Vertices, 1% Edge Probability, Maximum Edge Capacity 20
+| Algorithm      | Maximum Flow | Sequential Time Taken (s) | No. of Threads | Parallel Time Taken (s) |
+|----------------|--------------|---------------------------|----------------|-------------------------|
+| Dinitz         | 2484         | 25.934                    | -              | -                       |
+| Edmond-Karp    | -            | -                         | -              | -                       |
+| Push-Relabel   | 2484         | 56.801                    | 8              | 46.568                  |
 
 ### 4. Conclusion
-This project successfully implements Dinic's algorithm for maximum flow calculation and explores the impact of parallelization using OpenMP. The use of Google Colab provided the necessary computational resources to handle larger datasets and more intensive testing, which was crucial given the limitations of the local system's hardware. While the parallel version showed some performance improvements, the results suggest that more granular parallelization could be explored to fully utilize the available computational resources.
+This project implemented and evaluated three maximum flow algorithms—Dinitz, Edmond-Karp, and Push-Relabel—along with their parallelizations using OpenMP. The analysis demonstrated that while all three algorithms were effective, the Dinitz algorithm generally provided the most efficient execution times, while the Push-Relabel algorithm demonstrated strong performance with parallel execution.
+The use of Google Colab provided the necessary computational resources to handle larger datasets and more intensive testing, which was crucial given the limitations of the local system's hardware. While the parallel version showed some performance improvements, the results suggest that more granular parallelization could be explored to fully utilize the available computational resources.
+Future improvements could include exploring more advanced computational resources. Distributed computing frameworks such as MPI and GPU-based computing could handle extremely large graphs and more intensive computations more effectively. Additionally, utilizing cloud computing resources can offer scalable and flexible testing environments, enabling more extensive experimentation and analysis.
+
 ### 5. Appendices
 
 #### 5.1 Code Listings
