@@ -145,7 +145,8 @@ This phase is inherently sequential as it involves setting up the initial state 
 
 #### 3.1 Setup
 - **Hardware**:  
-The experiments were conducted on a system with [insert details: e.g., 4-core CPU, 8GB RAM].
+- Local System: The experiments were conducted on a system with [insert details: e.g., 4-core CPU, 8GB RAM].
+- Google Colab: An online platform providing access to more powerful hardware, including up to 12GB of RAM.
 
 - **Software Environment**:  
 The code was compiled using GCC with OpenMP enabled, running on Windows, Linux, and Mac.
@@ -157,6 +158,9 @@ The algorithm was tested on graphs with varying sizes, from small (100 vertices)
 - **Thread Counts**:  
 The parallel version was tested with different numbers of threads (1, 2, 3, 4, 6, 8 threads) to evaluate scalability.
 
+- **Computation Platform**:
+Due to RAM limitations on the local system, larger graphs and more intensive tests were performed on Google Colab. This platform provided the necessary computational resources to handle larger datasets and more complex calculations, ensuring that the tests could be conducted without running into memory-related issues.
+
 #### 3.3 Results
 - **Performance Comparison**:
 - The sequential version was used as the baseline.
@@ -166,12 +170,14 @@ The parallel version was tested with different numbers of threads (1, 2, 3, 4, 6
 - **Memory Usage**:  
 No significant difference in memory usage was observed between the sequential and parallel versions since both used the same graph representation and algorithmic approach.
 
+- **Platform Impact**:
+The ability to use Google Colab's additional resources was crucial for handling large graphs that could not be processed on the local system. The enhanced memory and processing power on Colab facilitated testing and comparison of the algorithm's performance on more demanding scenarios.
+
 #### 3.4 Analysis
 TODO
 
 ### 4. Conclusion
-This project successfully implements Dinic's algorithm for maximum flow calculation and explores the impact of parallelization using OpenMP. While the parallel version showed some performance improvements, the results suggest that more granular parallelization could be explored to fully utilize the available computational resources.
-
+This project successfully implements Dinic's algorithm for maximum flow calculation and explores the impact of parallelization using OpenMP. The use of Google Colab provided the necessary computational resources to handle larger datasets and more intensive testing, which was crucial given the limitations of the local system's hardware. While the parallel version showed some performance improvements, the results suggest that more granular parallelization could be explored to fully utilize the available computational resources.
 ### 5. Appendices
 
 #### 5.1 Code Listings
