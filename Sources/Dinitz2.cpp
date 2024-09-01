@@ -168,7 +168,7 @@ double dinicParallel(vector<vector<double>>& graph, int s, int t) {
     while (bfsParallel(rGraph, s, t, level)) {
         fill(start.begin(), start.end(), 0);
 
-        while (double flow = dfsParallel(rGraph, level, start, s, t, DBL_MAX)) {
+        while (double flow = dfs(rGraph, level, start, s, t, DBL_MAX)) {
             max_flow += flow;
         }
     }
