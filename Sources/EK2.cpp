@@ -52,38 +52,32 @@ bool bfsParallel(vector<vector<int>>& rGraph, int s, int t, vector<int>& parent)
     bool found_path = false;
     int local_found = 0;
 
-    #pragma omp parallel
-    {
-        #pragma omp single
-        {
-            while (!q.empty() && !found_path) {
-                int u = q.front();
-                q.pop();
+    while (!q.empty() && !found_path) {
+        int u = q.front();
+        q.pop();
 
-                #pragma omp parallel for shared(found_path) firstprivate(local_found)
-                for (int v = 0; v < V; ++v) {
-                    if (!found_path && !visited[v] && rGraph[u][v] > 0) {
-                        parent[v] = u;
+        #pragma omp parallel for shared(found_path) firstprivate(local_found)
+        for (int v = 0; v < V; ++v) {
+            if (!found_path && !visited[v] && rGraph[u][v] > 0) {
+                parent[v] = u;
 
-                        if (v == t) {
-                            local_found = 1;
-                            #pragma omp atomic write
-                            found_path = true;
-                        } else {
-                            #pragma omp critical
-                            {
-                                q.push(v);
-                                visited[v] = true;
-                            }
-                        }
+                if (v == t) {
+                    local_found = 1;
+                    #pragma omp atomic write
+                    found_path = true;
+                } else {
+                    #pragma omp critical
+                    {
+                        q.push(v);
+                        visited[v] = true;
                     }
                 }
-
-                if (local_found) {
-                    #pragma omp flush(found_path)
-                    break;
-                }
             }
+        }
+
+        if (local_found) {
+            #pragma omp flush(found_path)
+            break;
         }
     }
 
